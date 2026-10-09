@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js & Build
+.next/
+out/
+build/
+dist/
+
+# Local databases & uploads
+.pgdata/
+/media/
+/public/media/
+
+# Archives & logs
+*.log
+*.zip
+*.tar.gz
+imobifolio-deploy.zip
+imobifolio-deploy.tar.gz
+
+# Environment
+.env
+.env*.local
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

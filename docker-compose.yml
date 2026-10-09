@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: imobifolio_db
+    restart: always
+    environment:
+      POSTGRES_USER: imobifolio
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-ImobiSecurePass2026!}
+      POSTGRES_DB: imobifolio_prod
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - imobifolio_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U imobifolio -d imobifolio_prod"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: imobifolio_app
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgres://imobifolio:${DB_PASSWORD:-ImobiSecurePass2026!}@postgres:5432/imobifolio_prod
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:-a_very_secret_key_change_me_imobifolio_2026}
+      NEXT_PUBLIC_SITE_URL: https://vitrine.imobifolio.com.br
+      SERVER_URL: https://vitrine.imobifolio.com.br
+    ports:
+      # Expõe na porta 3000 do host da VPS para o CyberPanel fazer o Proxy Reverso
+      - "127.0.0.1:3000:3000"
+    volumes:
+      # Persiste uploads de fotos e mídias
+      - media_uploads:/app/public/media
+    networks:
+      - imobifolio_net
+
+volumes:
+  pgdata:
+  media_uploads:
+
+networks:
+  imobifolio_net:
+    driver: bridge
